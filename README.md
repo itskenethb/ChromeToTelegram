@@ -1,6 +1,6 @@
 **Clone This Repository and Extract**
 
-** After that  Open Terminal/CMD and Go to the Same Directory Where the Directory is Located and type:**
+**After that  Open Terminal/CMD and Go to the Same Directory Where the Directory is Located and type:**
 
  pip install -r requirements.txt
 
