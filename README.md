@@ -1,4 +1,4 @@
-#Make Sure to Change this with Your Appropriate Chat ID and Bot Token in Chrome.py file
+# Make Sure to Change this with Your Appropriate Chat ID and Bot Token in Chrome.py file
 
 *bot_token = "YOUR_CHAT_TOKEN"
 
